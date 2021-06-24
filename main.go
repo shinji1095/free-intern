@@ -31,10 +31,9 @@ type Body struct {
 }
 
 func main() {
-	// db := sqlConnect()
-	// defer db.Close()
+	db := sqlConnect()
+	defer db.Close()
 	e := echo.New()
-	http.Handle("/", e)
 	e.Use(middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
 		fmt.Fprintf(os.Stderr, "Request: %v\n", string(reqBody))
 	}))
@@ -184,11 +183,26 @@ func deleteRecipe(c echo.Context) error {
 }
 
 func sqlConnect() (database *gorm.DB) {
-	DBMS := "mysql"
-	USER := "go"
-	PASS := "pass"
-	PROTOCOL := "tcp(db:3306)"
-	DBNAME := "godb"
+	var DBMS string
+	var USER string
+	var PASS string
+	var PROTOCOL string
+	var DBNAME string
+
+	switch os.Getenv("env") {
+	case "production":
+		DBMS = "postgres"
+		USER = "bnlpapzoyefidn"
+		PASS = "9cd9e4ff62abb18c514b75c532cafb621564c316c6d56a278561e5438f73d1ca"
+		PROTOCOL = "ec2-52-86-25-51.compute-1.amazonaws.com:5432"
+		DBNAME = "dirmm48brfasp"
+	default:
+		DBMS = "postgres"
+		USER = "go"
+		PASS = "pass"
+		PROTOCOL = "tcp(db:3306)"
+		DBNAME = "godb"
+	}
 
 	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=true&loc=Asia%2FTokyo"
 
