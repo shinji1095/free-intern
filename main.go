@@ -31,14 +31,14 @@ type Body struct {
 }
 
 func main() {
-	db := sqlConnect()
-	defer db.Close()
+	// db := sqlConnect()
+	// defer db.Close()
 	e := echo.New()
 	e.Use(middleware.BodyDump(func(c echo.Context, reqBody, resBody []byte) {
 		fmt.Fprintf(os.Stderr, "Request: %v\n", string(reqBody))
 	}))
 	Router(e)
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":8080"))
 }
 
 func Router(e *echo.Echo) {
