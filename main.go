@@ -39,7 +39,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Request: %v\n", string(reqBody))
 	}))
 	Router(e)
-	//e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":1323"))
 }
 
 func Router(e *echo.Echo) {

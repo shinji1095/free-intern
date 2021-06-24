@@ -1,12 +1,15 @@
+x-aws-vpc: "vpc-09b42860872d323ba"
+
 version: '3'
 services:
   go:
     build:
       context: .
-      dockerfile: DockerFile
+      dockerfile: DockerFile.backend
     command: /bin/sh -c "go run main.go"
     stdin_open: true
     tty: true
+    image: gcr.io/freee-intern-317806/backend:v3
     volumes:
       - .:/app
     ports:
@@ -15,7 +18,10 @@ services:
       - "db"
 
   db:
-    image: mysql:8.0
+    build:
+      context: .
+      dockerfile: DockerFile.db
+    image: gcr.io/freee-intern-317806/db:v2
     environment:
       MYSQL_ROOT_PASSWORD: pass
       MYSQL_DATABASE: godb
