@@ -194,11 +194,11 @@ func sqlConnect() (database *gorm.DB) {
 	switch os.Getenv("env") {
 	case "production":
 		log.Print("access as production")
-		DBMS = "postgres"
-		USER = "bnlpapzoyefidn"
-		PASS = "9cd9e4ff62abb18c514b75c532cafb621564c316c6d56a278561e5438f73d1ca"
-		PROTOCOL = "ec2-52-86-25-51.compute-1.amazonaws.com:5432"
-		DBNAME = "dirmm48brfasp"
+		// DBMS = "postgres"
+		// USER = "bnlpapzoyefidn"
+		// PASS = "9cd9e4ff62abb18c514b75c532cafb621564c316c6d56a278561e5438f73d1ca"
+		// PROTOCOL = "ec2-52-86-25-51.compute-1.amazonaws.com:5432"
+		// DBNAME = "dirmm48brfasp"
 		URL = os.Getenv("DATABASE_URL")
 	default:
 		log.Print("access as development")
@@ -209,6 +209,7 @@ func sqlConnect() (database *gorm.DB) {
 		DBNAME = "godb"
 		URL = USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=true&loc=Asia%2FTokyo"
 	}
+	URL = os.Getenv("DATABASE_URL")
 
 	count := 0
 	db, err := gorm.Open(DBMS, URL)
