@@ -226,7 +226,7 @@ func sqlConnect() (database *gorm.DB) {
 				fmt.Println("DB接続失敗")
 				panic(err)
 			}
-			db, err = gorm.Open(DBMS, CONNECT)
+			db, err = gorm.Open(DBMS, URL)
 		}
 	}
 	fmt.Println("DB接続成功")
