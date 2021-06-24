@@ -209,7 +209,7 @@ func sqlConnect() (database *gorm.DB) {
 		DBNAME = "godb"
 		URL = USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=true&loc=Asia%2FTokyo"
 	}
-	URL = os.Getenv("DATABASE_URL")
+	URL = os.Getenv("DATABASE_URL") + " sslmode=require"
 
 	count := 0
 	db, err := gorm.Open(DBMS, URL)
