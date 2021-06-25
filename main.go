@@ -56,8 +56,9 @@ type FieldsToReplace struct {
 }
 
 func arrange_response(res string) string {
-	temp := strings.ReplaceAll(res, `\n`, ``)
-	output := strings.ReplaceAll(temp, `\t`, ``)
+	temp := strings.ReplaceAll(res, `\n`, "")
+	output := strings.ReplaceAll(temp, `\t`, "")
+	fmt.Print(output)
 	return output
 }
 
@@ -70,11 +71,8 @@ func postRecipes(c echo.Context) error {
 
 	// カラムがすべて存在するか確認
 	if columns := checkEmpty(*recipe); len(columns) != column_num {
-		message := `{
-			"message": "Recipe creation failed!"
-			"required": "title, making_time, serves, ingredients, cost"
-		   }`
-		return c.JSON(http.StatusOK, message)
+		message := `{"message": "Recipe creation failed!""required": "title, making_time, serves, ingredients, cost"}`
+		return c.JSON(http.StatusOK, arrange_response(message))
 	}
 
 	fmt.Print("post Body: ", recipe, "\n")
@@ -82,9 +80,7 @@ func postRecipes(c echo.Context) error {
 	db.Last(&recipe)
 	fmt.Print(recipe)
 	jsonData, _ := json.Marshal(recipe)
-	message := `{
-		"message": "Recipe successfully created!",
-		"recipe": [` + string(jsonData) + `]}`
+	message := `{"message": "Recipe successfully created!","recipe": [` + string(jsonData) + `]}`
 	return c.JSON(http.StatusOK, arrange_response(message))
 }
 
@@ -113,11 +109,8 @@ func getRecipe(c echo.Context) error {
 	recipe := []Recipe{}
 	db.Find(&recipe, "id=?", id)
 	jsonData, _ := json.Marshal(recipe)
-	message := `{
-		"message": "Recipe details by id",
-		"recipe": ` + string(jsonData) + `
-	  }`
-	return c.JSON(http.StatusOK, message)
+	message := `{"message": "Recipe details by id","recipe": ` + string(jsonData) + `}`
+	return c.JSON(http.StatusOK, arrange_response(message))
 }
 
 func checkEmpty(recipe Recipe) map[string]interface{} {
