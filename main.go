@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -54,18 +55,25 @@ type FieldsToReplace struct {
 	Replace1 string
 }
 
+func arrange_response(res string) string {
+	temp := strings.ReplaceAll(res, `\n`, ``)
+	output := strings.ReplaceAll(temp, `\t`, ``)
+	return output
+}
+
 func postRecipes(c echo.Context) error {
 	db := sqlConnect()
 	defer db.Close()
+	column_num := 5
 	recipe := new(Recipe)
+	c.Bind((&recipe))
 
 	// カラムがすべて存在するか確認
-	if err := c.Bind(&recipe); err != nil {
+	if columns := checkEmpty(*recipe); len(columns) != column_num {
 		message := `{
 			"message": "Recipe creation failed!"
 			"required": "title, making_time, serves, ingredients, cost"
 		   }`
-		fmt.Print(err)
 		return c.JSON(http.StatusOK, message)
 	}
 
@@ -77,7 +85,7 @@ func postRecipes(c echo.Context) error {
 	message := `{
 		"message": "Recipe successfully created!",
 		"recipe": [` + string(jsonData) + `]}`
-	return c.JSON(http.StatusOK, message)
+	return c.JSON(http.StatusOK, arrange_response(message))
 }
 
 func getAllRecipes(c echo.Context) error {
@@ -88,11 +96,11 @@ func getAllRecipes(c echo.Context) error {
 	db.Find(&recipes)
 	fmt.Println(recipes)
 	jsonData, _ := json.Marshal(recipes)
-	message := `{
-		"recipes": 
-			` + string(jsonData) + `
-		}`
-	return c.JSON(http.StatusOK, message)
+	message :=
+		`{
+	"recipes":` + string(jsonData) + `
+}`
+	return c.JSON(http.StatusOK, arrange_response(message))
 }
 
 func getRecipe(c echo.Context) error {
@@ -176,11 +184,11 @@ func deleteRecipe(c echo.Context) error {
 	if err := db.Where("id=?", id).First(&recipe).Error; err != nil {
 		message := `{ "message":"No Recipe found" }`
 		fmt.Print(err)
-		return c.JSON(http.StatusOK, message)
+		return c.JSON(http.StatusOK, arrange_response(message))
 	}
 	db.Delete(recipe, id)
 	message := ` {  "message": "Recipe successfully removed!" }`
-	return c.JSON(http.StatusOK, message)
+	return c.JSON(http.StatusOK, arrange_response(message))
 }
 
 func sqlConnect() (database *gorm.DB) {
