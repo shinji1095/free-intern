@@ -74,7 +74,7 @@ func postRecipes(c echo.Context) error {
 		message := `{
 	"message": "Recipe creation failed!",
 	"required": "title, making_time, serves, ingredients, cost"
-}`
+   }`
 		return c.JSON(http.StatusOK, message)
 	}
 
@@ -112,7 +112,10 @@ func getRecipe(c echo.Context) error {
 	recipe := []Recipe{}
 	db.Find(&recipe, "id=?", id)
 	jsonData, _ := json.Marshal(recipe)
-	message := `{"message": "Recipe details by id","recipe": ` + string(jsonData) + `}`
+	message := `{
+	"message": "Recipe details by id",
+	"recipe": ` + string(jsonData) +
+		`}`
 	return c.JSON(http.StatusOK, arrange_response(message))
 }
 
