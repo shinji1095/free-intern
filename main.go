@@ -71,8 +71,11 @@ func postRecipes(c echo.Context) error {
 
 	// カラムがすべて存在するか確認
 	if columns := checkEmpty(*recipe); len(columns) != column_num {
-		message := `{"message": "Recipe creation failed!""required": "title, making_time, serves, ingredients, cost"}`
-		return c.JSON(http.StatusOK, arrange_response(message))
+		message := `{
+	"message": "Recipe creation failed!",
+	"required": "title, making_time, serves, ingredients, cost"
+}`
+		return c.JSON(http.StatusOK, message)
 	}
 
 	fmt.Print("post Body: ", recipe, "\n")
