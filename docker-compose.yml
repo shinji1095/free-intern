@@ -1,5 +1,3 @@
-x-aws-vpc: "vpc-09b42860872d323ba"
-
 version: '3'
 services:
   go:

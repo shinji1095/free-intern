@@ -190,8 +190,10 @@ func sqlConnect() (database *gorm.DB) {
 	var PROTOCOL string
 	var DBNAME string
 	var URL string
+	var env = os.Getenv("env")
+	fmt.Print(env)
 
-	switch os.Getenv("env") {
+	switch env {
 	case "production":
 		log.Print("access as production")
 		// DBMS = "postgres"
