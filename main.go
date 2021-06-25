@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -71,11 +72,11 @@ func postRecipes(c echo.Context) error {
 
 	// カラムがすべて存在するか確認
 	if columns := checkEmpty(*recipe); len(columns) != column_num {
-		message := `{
-	"message": "Recipe creation failed!",
-	"required": "title, making_time, serves, ingredients, cost"
-   }`
-		return c.JSON(http.StatusOK, message)
+		message, err := ioutil.ReadFile("./messages/post_failed.json")
+		if err != nil {
+			log.Fatal(err)
+		}
+		return c.JSON(http.StatusOK, string(message))
 	}
 
 	fmt.Print("post Body: ", recipe, "\n")
