@@ -39,7 +39,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Request: %v\n", string(reqBody))
 	}))
 	Router(e)
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(":1323"))
 }
 
 func Router(e *echo.Echo) {
@@ -211,7 +211,6 @@ func sqlConnect() (database *gorm.DB) {
 		DBNAME = "godb"
 		URL = USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=true&loc=Asia%2FTokyo"
 	}
-	URL = os.Getenv("DATABASE_URL") + "sslmode=require"
 
 	count := 0
 	db, err := gorm.Open(DBMS, URL)
