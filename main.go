@@ -68,8 +68,6 @@ func postRecipes(c echo.Context) error {
 	column_num := 5
 	recipe := new(Recipe)
 	c.Bind((&recipe))
-	fmt.Print("_________________________", recipe)
-	fmt.Print("fadkfjad;lfkaj;flkajdsf;lakjd_______________________________________________")
 
 	// カラムがすべて存在するか確認
 	if columns := checkEmpty(*recipe); len(columns) != column_num {
@@ -82,13 +80,11 @@ func postRecipes(c echo.Context) error {
 
 	db.Create(&recipe)
 	db.Last(&recipe)
-	fmt.Print(recipe)
 	recipes := []Recipe{*recipe}
 	message := MessagePostSuccess{
 		"Recipe successfully created!",
 		recipes,
 	}
-	fmt.Print(message)
 	return c.JSON(http.StatusOK, message)
 }
 
@@ -102,7 +98,6 @@ func getAllRecipes(c echo.Context) error {
 
 	recipes := []Recipe{}
 	db.Find(&recipes)
-	fmt.Println(recipes)
 	message := MessageGetAllRecipe{recipes}
 	return c.JSON(http.StatusOK, message)
 }
@@ -117,7 +112,6 @@ func getRecipe(c echo.Context) error {
 	defer db.Close()
 
 	id := c.Param("id")
-	fmt.Println("id is ", id)
 
 	recipe := []Recipe{}
 	db.Find(&recipe, "id=?", id)
@@ -163,7 +157,6 @@ func patchRecipe(c echo.Context) error {
 	db := sqlConnect()
 	defer db.Close()
 	var id = c.Param("id")
-	fmt.Print("id: ", id, "\n")
 
 	var recipe Recipe
 
@@ -171,11 +164,7 @@ func patchRecipe(c echo.Context) error {
 	int_id, _ := strconv.Atoi(id)
 	recipe.Id = int_id
 	var columns = checkEmpty(recipe)
-	fmt.Print(columns)
 	db.Model(&recipe).Update(columns)
-	// db.Save(&recipe)
-	// db.Select("").Where("id=?", id).First(&patchResult)
-	fmt.Print("recipe: ", recipe, "\n")
 	body := Body{}
 	body = recipe.Body
 	recipes := []Body{
@@ -197,7 +186,6 @@ func deleteRecipe(c echo.Context) error {
 	db := sqlConnect()
 	defer db.Close()
 	id := c.Param(("id"))
-	fmt.Print("id", id, "\n")
 	var recipe Recipe
 	if err := db.Where("id=?", id).First(&recipe).Error; err != nil {
 		message := MessageDelete{"No Recipe found"}

@@ -1,4 +1,4 @@
-ifeq ($(env), production)
+ifeq ($(env), prod)
 	url = http://35.202.163.76:1323
 else
 	url = http://localhost:1323
