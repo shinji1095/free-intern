@@ -1,4 +1,0 @@
-{
-    "message": "Recipe creation failed!",
-    "required": "title, making_time, serves, ingredients, cost"
-   }

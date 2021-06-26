@@ -1,14 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -56,11 +53,13 @@ type FieldsToReplace struct {
 	Replace1 string
 }
 
-func arrange_response(res string) string {
-	temp := strings.ReplaceAll(res, `\n`, "")
-	output := strings.ReplaceAll(temp, `\t`, "")
-	fmt.Print(output)
-	return output
+type MessagePostFailed struct {
+	Message  string `json:"message"`
+	Required string `json:"required"`
+}
+type MessagePostSuccess struct {
+	Message string   `json:"message"`
+	Recipe  []Recipe `json:"recipe"`
 }
 
 func postRecipes(c echo.Context) error {
@@ -69,23 +68,32 @@ func postRecipes(c echo.Context) error {
 	column_num := 5
 	recipe := new(Recipe)
 	c.Bind((&recipe))
+	fmt.Print("_________________________", recipe)
+	fmt.Print("fadkfjad;lfkaj;flkajdsf;lakjd_______________________________________________")
 
 	// カラムがすべて存在するか確認
 	if columns := checkEmpty(*recipe); len(columns) != column_num {
-		message, err := ioutil.ReadFile("./messages/post_failed.json")
-		if err != nil {
-			log.Fatal(err)
+		message := MessagePostFailed{
+			"Recipe creation failed!",
+			"title, making_time, serves, ingredients, cost",
 		}
-		return c.JSON(http.StatusOK, string(message))
+		return c.JSON(http.StatusOK, message)
 	}
 
-	fmt.Print("post Body: ", recipe, "\n")
 	db.Create(&recipe)
 	db.Last(&recipe)
 	fmt.Print(recipe)
-	jsonData, _ := json.Marshal(recipe)
-	message := `{"message": "Recipe successfully created!","recipe": [` + string(jsonData) + `]}`
-	return c.JSON(http.StatusOK, arrange_response(message))
+	recipes := []Recipe{*recipe}
+	message := MessagePostSuccess{
+		"Recipe successfully created!",
+		recipes,
+	}
+	fmt.Print(message)
+	return c.JSON(http.StatusOK, message)
+}
+
+type MessageGetAllRecipe struct {
+	Recipes []Recipe `json:"recipes"`
 }
 
 func getAllRecipes(c echo.Context) error {
@@ -95,12 +103,13 @@ func getAllRecipes(c echo.Context) error {
 	recipes := []Recipe{}
 	db.Find(&recipes)
 	fmt.Println(recipes)
-	jsonData, _ := json.Marshal(recipes)
-	message :=
-		`{
-	"recipes":` + string(jsonData) + `
-}`
-	return c.JSON(http.StatusOK, arrange_response(message))
+	message := MessageGetAllRecipe{recipes}
+	return c.JSON(http.StatusOK, message)
+}
+
+type MessageGetReciipe struct {
+	Message string   `json:"message"`
+	Recipe  []Recipe `json:"recipe"`
 }
 
 func getRecipe(c echo.Context) error {
@@ -112,12 +121,12 @@ func getRecipe(c echo.Context) error {
 
 	recipe := []Recipe{}
 	db.Find(&recipe, "id=?", id)
-	jsonData, _ := json.Marshal(recipe)
-	message := `{
-	"message": "Recipe details by id",
-	"recipe": ` + string(jsonData) +
-		`}`
-	return c.JSON(http.StatusOK, arrange_response(message))
+	message := MessageGetReciipe{
+		"Recipe details by id",
+		recipe,
+	}
+
+	return c.JSON(http.StatusOK, message)
 }
 
 func checkEmpty(recipe Recipe) map[string]interface{} {
@@ -145,16 +154,17 @@ func checkEmpty(recipe Recipe) map[string]interface{} {
 	return columns
 }
 
+type MessagePatch struct {
+	Message string `json:"message"`
+	Recipe  []Body `json:"recipe"`
+}
+
 func patchRecipe(c echo.Context) error {
 	db := sqlConnect()
 	defer db.Close()
 	var id = c.Param("id")
 	fmt.Print("id: ", id, "\n")
 
-	// レシピidが取得できていない場合の判定
-	if id == "" {
-		id = "1"
-	}
 	var recipe Recipe
 
 	c.Bind(&recipe)
@@ -165,14 +175,22 @@ func patchRecipe(c echo.Context) error {
 	db.Model(&recipe).Update(columns)
 	// db.Save(&recipe)
 	// db.Select("").Where("id=?", id).First(&patchResult)
-	jsonData, _ := json.Marshal(recipe)
 	fmt.Print("recipe: ", recipe, "\n")
+	body := Body{}
+	body = recipe.Body
+	recipes := []Body{
+		body,
+	}
 
-	message := `{
-		"message": "Recipe successfully updated!",
-		"recipe": 	` + string(jsonData) + `
-	  }`
+	message := MessagePatch{
+		"Recipe successfully updated!",
+		recipes,
+	}
 	return c.JSON(http.StatusOK, message)
+}
+
+type MessageDelete struct {
+	Message string `json:"message"`
 }
 
 func deleteRecipe(c echo.Context) error {
@@ -182,13 +200,13 @@ func deleteRecipe(c echo.Context) error {
 	fmt.Print("id", id, "\n")
 	var recipe Recipe
 	if err := db.Where("id=?", id).First(&recipe).Error; err != nil {
-		message := `{ "message":"No Recipe found" }`
+		message := MessageDelete{"No Recipe found"}
 		fmt.Print(err)
-		return c.JSON(http.StatusOK, arrange_response(message))
+		return c.JSON(http.StatusOK, message)
 	}
 	db.Delete(recipe, id)
-	message := ` {  "message": "Recipe successfully removed!" }`
-	return c.JSON(http.StatusOK, arrange_response(message))
+	message := MessageDelete{"Recipe successfully removed!"}
+	return c.JSON(http.StatusOK, message)
 }
 
 func sqlConnect() (database *gorm.DB) {
